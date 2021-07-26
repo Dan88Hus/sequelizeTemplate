@@ -34,6 +34,25 @@ Track.belongsToMany(Playlist,{
     timestamps: false
 })
 
+app.delete("/api/playlists/:id", function(request,response){
+    let {id} = request.params
+    // Playlist table has relationships so we need to define also related path for cascade
+    Playlist.findByPk(id).then((playlist)=>{
+        if(playlist){
+            return playlist.setTracks([]).then(()=>{
+                return playlist.destroy()
+            })
+        } else {
+            return Promise.reject()
+        }
+    })
+    .then(()=>{
+        response.status(204).send()
+    },()=>{
+        response.status(404).send()
+    })
+})
+
 app.post('/api/artists',function(request,response){
     console.log(request.body.name)
     Artist.create({
